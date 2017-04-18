@@ -144,7 +144,6 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 		output.Message = "cannot write ly file"
 		return
 	}
-	defer file.Close()
 	writer := bufio.NewWriter(file)
 	_, err = writer.WriteString(postedScore.Score)
 	if err != nil {
@@ -152,6 +151,8 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writer.Flush()
+	file.Close()
+	defer os.Remove("posted/" + id_str + ".ly")
 
 	cmd := exec.Command(lilypondBinPath, "-o", "output/"+id_str, "posted/"+id_str+".ly")
 	//stdin, err := cmd.StdinPipe()
