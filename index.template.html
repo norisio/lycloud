@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <script type="text/javascript">
+send = ()=>{
+var newName = 'John Smith',
+xhr = new XMLHttpRequest();
+
+xhr.open('POST', '//[::1]:8080/post-score');
+xhr.setRequestHeader('Content-Type', 'application/json');
+xhr.onload = () => {
+  alert(xhr.responseText);
+};
+xhr.send(JSON.stringify({SessionID:"{{.SessionID}}", Score:document.getElementById("score_area").value}));
+}
+    </script>
+  <body>
+SessionID: {{.SessionID}}<br>
+<textarea autofocus="true" rows="40" cols="100" id="score_area">
+\version "2.18.2"
+\score{
+  {
+    c
+  }
+  \layout{}
+}
+</textarea><br>
+<button onclick="send()">send</button>
+  </body>
+</html>
