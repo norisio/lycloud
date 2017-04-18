@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 	"sync"
 	"time"
 )
@@ -30,6 +32,9 @@ func main() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/post-score", scoreHandler)
 	http.HandleFunc("/get-score/", getScoreHandler)
+	http.HandleFunc("/pdfjs/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
 	http.ListenAndServe(":"+listenPort, nil)
 }
 
@@ -134,17 +139,31 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := exec.Command(lilypondBinPath, "-o", "output/"+id_str, "/dev/stdin")
-	stdin, err := cmd.StdinPipe()
+	file, err := os.OpenFile("posted/"+id_str+".ly", os.O_WRONLY|os.O_CREATE, 0644)
 	if err != nil {
-		output.Message = err.Error()
+		output.Message = "cannot write ly file"
 		return
 	}
-	fmt.Println("Processing: uuid " + string(requestBody))
-	go func() {
-		defer stdin.Close()
-		io.WriteString(stdin, postedScore.Score)
-	}()
+	defer file.Close()
+	writer := bufio.NewWriter(file)
+	_, err = writer.WriteString(postedScore.Score)
+	if err != nil {
+		output.Message = "cannot write ly file"
+		return
+	}
+	writer.Flush()
+
+	cmd := exec.Command(lilypondBinPath, "-o", "output/"+id_str, "posted/"+id_str+".ly")
+	//stdin, err := cmd.StdinPipe()
+	//if err != nil {
+	//output.Message = err.Error()
+	//return
+	//}
+	fmt.Println("Processing: uuid " + string(postedScore.SessionID))
+	//go func() {
+	//defer stdin.Close()
+	//io.WriteString(stdin, postedScore.Score)
+	//}()
 	combinedOutput, commandError := cmd.CombinedOutput()
 	if commandError == nil { //exit status
 		output.Success = true
@@ -157,6 +176,7 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 
 func getScoreHandler(w http.ResponseWriter, r *http.Request) {
 	var id_str string = r.URL.Path[len("/get-score/"):]
+	id_str = strings.Split(id_str, "?")[0]
 	id, err := uuid.FromString(id_str)
 	//var valid_id bool = uuid_regex.MatchString(id_str)
 	if err != nil {
