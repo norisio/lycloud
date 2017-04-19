@@ -58,7 +58,7 @@
           if (sfx === "") {
             return ""
           }else{
-            return "./pdfjs/web/viewer.html?file=" + document.location.origin + "/get-score/" + sfx
+            return /* "./pdfjs/web/viewer.html?file=" +*/ document.location.origin + "/get-score/" + sfx
           }
         }
         render(){
