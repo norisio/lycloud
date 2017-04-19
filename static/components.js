@@ -34,12 +34,22 @@
           );
         }
       }
+      class GithubButton extends React.Component{
+        render(){
+          return (
+            <div className="githubButton">
+              <a href="https://github.com/norisio/lycloud/" target="_blank">GitHub</a>
+            </div>
+          );
+        }
+      }
       class MenuBar extends React.Component{
         render(){
           return (
               <header className="hdrMenu">
                 Cloud Lilypond       
                 <PreviewButton updateSuffix={this.props.updateSuffix} />
+                <GithubButton />
               </header>
           );
         }
