@@ -192,6 +192,7 @@ func getScoreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filename := "output/" + id_str + ".pdf"
+	midifilename := "output/" + id_str + ".mid"
 	file, err := os.Open(filename)
 	if err != nil {
 		w.WriteHeader(404)
@@ -209,4 +210,5 @@ func getScoreHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, err.Error())
 		return
 	}
+	_ = os.Remove(midifilename)
 }
