@@ -17,7 +17,7 @@ import (
 	"time"
 )
 
-const lilypondBinPath = "/Users/nao/bin/lilypond"
+const lilypondBinPath = "/home/ubuntu/bin/lilypond"
 const listenPort = "8080"
 const hourToExpireSession = 5
 
@@ -32,10 +32,16 @@ func main() {
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/post-score", scoreHandler)
 	http.HandleFunc("/get-score/", getScoreHandler)
+	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, r.URL.Path[1:])
+	})
 	http.HandleFunc("/pdfjs/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
-	http.ListenAndServe(":"+listenPort, nil)
+	err := http.ListenAndServe(":"+listenPort, nil)
+     if err != nil{
+	     fmt.Println(err.Error())
+     }
 }
 
 type Initial struct {
@@ -43,14 +49,20 @@ type Initial struct {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	tmpl, _ := template.ParseFiles("index.template.html")
+	tmpl, err := template.ParseFiles("index.template.html")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 	var newuuid uuid.UUID = uuid.NewV4()
 	var newuuidstr string = newuuid.String()
 	var newtime time.Time = time.Now()
 	thisSession := Session{newuuid, newtime}
 	sessions = append(sessions, thisSession)
 	initial := Initial{SessionID: newuuidstr}
-	tmpl.Execute(w, initial)
+	err = tmpl.Execute(w, initial)
+	if err != nil{
+		fmt.Println(err.Error())
+	}
 }
 
 func delete_s(s []Session, i int) []Session {
