@@ -62,8 +62,10 @@ send = (f)=>{
   xhr.open('POST', '//[::1]:8080/post-score');
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.onload = () => {
-    alert(xhr.responseText)
-    f()
+    // alert(xhr.responseText)
+    if(xhr.status == 200){
+      f()
+    }
   };
   xhr.send(JSON.stringify({SessionID:SessionID, Score:document.getElementById("score_area").value}));
 }
@@ -81,6 +83,9 @@ initialPreview = ()=>{
   }
   \\layout{}
 }`
+  send(()=>{
+    document.getElementById("previewIframe").src = "pdfjs/web/viewer.html?file=" + document.location.origin + "/get-score/" + SessionID
+  });
 }
     </script>
   <body onload="initialPreview()">
@@ -151,7 +156,7 @@ initialPreview = ()=>{
         }
         render(){
           return (
-            <iframe className="preview" src={this.getPdfPath()}>
+            <iframe className="preview" src={this.getPdfPath()} id="previewIframe">
             </iframe>
           );
         }
