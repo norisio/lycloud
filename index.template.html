@@ -29,6 +29,9 @@ textarea.editor{
   height: 100%;
   box-sizing: border-box;
   padding: 0.5em;
+  font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
+  font-size: 14px;
+  line-height: 1.2;
 }
 .divHdr{
 }
@@ -51,6 +54,13 @@ textarea.editor{
   margin-left: 2em;
   margin-right: 2em;
   color: #ccccaa;
+  display: inline-block;
+}
+.githubButton{
+  float: right;
+  width: 100px;
+  margin: 0 auto 0 1em;
+  color: white;
   display: inline-block;
 }
     </style>
@@ -127,12 +137,22 @@ initialPreview = ()=>{
           );
         }
       }
+      class GithubButton extends React.Component{
+        render(){
+          return (
+            <div className="githubButton">
+              <a href="https://github.com/norisio/lycloud/" target="_blank">GitHub</a>
+            </div>
+          );
+        }
+      }
       class MenuBar extends React.Component{
         render(){
           return (
               <header className="hdrMenu">
                 Cloud Lilypond       
                 <PreviewButton updateSuffix={this.props.updateSuffix} />
+                <GithubButton />
               </header>
           );
         }
