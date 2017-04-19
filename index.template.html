@@ -48,7 +48,10 @@ textarea.editor{
   height: 100%;
 }
 .previewButton{
+  margin-left: 2em;
+  margin-right: 2em;
   color: #ccccaa;
+  display: inline-block;
 }
     </style>
     <script type="text/javascript">
@@ -64,8 +67,23 @@ send = (f)=>{
   };
   xhr.send(JSON.stringify({SessionID:SessionID, Score:document.getElementById("score_area").value}));
 }
+
+initialPreview = ()=>{
+  document.getElementById("score_area").value=`\\version "2.18.2"
+
+\\score {
+  \\new Staff {
+    \\new Voice {
+      \\relative c''{
+      c4( e g c) | c-> g-- e-. g,-^ | <c e,>1 \\bar"|."
+      }
+    }
+  }
+  \\layout{}
+}`
+}
     </script>
-  <body>
+  <body onload="initialPreview()">
     <div id="body" style="height:100%"></div>
 
     <script type="text/babel">
@@ -88,7 +106,7 @@ send = (f)=>{
               <div className="divHdr">
                 <MenuBar updateSuffix={this.updateSuffix.bind(this)} />
               </div>
-              <div className="h-100 d-inline-block" style={ {"height":"100%"} }>
+              <div className="d-inline-block" style={ {"height":"97%"} }>
                 <MainFrame score_suffix={this.state.score_suffix} />
               </div>
             </div>
@@ -98,7 +116,9 @@ send = (f)=>{
       class PreviewButton extends React.Component{
         render(){
           return (
-            <a onClick={()=>{send(this.props.updateSuffix)} } className="previewButton"><u>プレビュー</u></a>
+            <div onClick={()=>{send(this.props.updateSuffix)} } className="previewButton">
+              <u>プレビュー</u>
+            </div>
           );
         }
       }
@@ -116,7 +136,7 @@ send = (f)=>{
       class LeftPane extends React.Component{
         render(){
           return (
-            <textarea id="score_area" className="editor"></textarea>
+            <textarea id="score_area" className="editor" autofocus="true"></textarea>
           );
         }
       }
@@ -126,7 +146,7 @@ send = (f)=>{
           if (sfx === "") {
             return ""
           }else{
-            return document.location.origin + "/get-score/" + sfx
+            return "./pdfjs/web/viewer.html?file=" + document.location.origin + "/get-score/" + sfx
           }
         }
         render(){
