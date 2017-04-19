@@ -29,9 +29,6 @@ textarea.editor{
   height: 100%;
   box-sizing: border-box;
   padding: 0.5em;
-  font-family: Consolas, 'Courier New', Courier, Monaco, monospace;
-  font-size: 14px;
-  line-height: 1.2;
 }
 .divHdr{
 }
@@ -56,20 +53,13 @@ textarea.editor{
   color: #ccccaa;
   display: inline-block;
 }
-.githubButton{
-  float: right;
-  width: 100px;
-  margin: 0 auto 0 1em;
-  color: white;
-  display: inline-block;
-}
     </style>
     <script type="text/javascript">
 const SessionID = "{{.SessionID}}"
 send = (f)=>{
   xhr = new XMLHttpRequest();
 
-  xhr.open('POST', '//[::1]:8080/post-score');
+  xhr.open('POST', document.location.origin + '/post-score');
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.onload = () => {
     // alert(xhr.responseText)
@@ -94,114 +84,14 @@ initialPreview = ()=>{
   \\layout{}
 }`
   send(()=>{
-    document.getElementById("previewIframe").src = "pdfjs/web/viewer.html?file=" + document.location.origin + "/get-score/" + SessionID
+    document.getElementById("previewIframe").src = /* "pdfjs/web/viewer.html?file="  +*/ document.location.origin + "/get-score/" + SessionID
   });
 }
     </script>
-  <body onload="initialPreview()">
+  <body>
     <div id="body" style="height:100%"></div>
 
-    <script type="text/babel">
-      class Body extends React.Component{
-        constructor(props){
-          super(props)
-          this.state = {
-            score_suffix: ""
-          }
-        }
-        updateSuffix(){
-          this.setState({
-            score_suffix :
-            SessionID + "?" + Math.floor(Math.random()*10000)
-          });
-        }
-        render(){
-          return (
-            <div style={ {"height":"100%"} }>
-              <div className="divHdr">
-                <MenuBar updateSuffix={this.updateSuffix.bind(this)} />
-              </div>
-              <div className="d-inline-block" style={ {"height":"97%"} }>
-                <MainFrame score_suffix={this.state.score_suffix} />
-              </div>
-            </div>
-          );
-        }
-      }
-      class PreviewButton extends React.Component{
-        render(){
-          return (
-            <div onClick={()=>{send(this.props.updateSuffix)} } className="previewButton">
-              <u>プレビュー</u>
-            </div>
-          );
-        }
-      }
-      class GithubButton extends React.Component{
-        render(){
-          return (
-            <div className="githubButton">
-              <a href="https://github.com/norisio/lycloud/" target="_blank">GitHub</a>
-            </div>
-          );
-        }
-      }
-      class MenuBar extends React.Component{
-        render(){
-          return (
-              <header className="hdrMenu">
-                Cloud Lilypond       
-                <PreviewButton updateSuffix={this.props.updateSuffix} />
-                <GithubButton />
-              </header>
-          );
-        }
-      }
-      
-      class LeftPane extends React.Component{
-        render(){
-          return (
-            <textarea id="score_area" className="editor" autofocus="true"></textarea>
-          );
-        }
-      }
-      class RightPane extends React.Component{
-        getPdfPath = ()=>{
-          var sfx = this.props.score_suffix
-          if (sfx === "") {
-            return ""
-          }else{
-            return "./pdfjs/web/viewer.html?file=" + document.location.origin + "/get-score/" + sfx
-          }
-        }
-        render(){
-          return (
-            <iframe className="preview" src={this.getPdfPath()} id="previewIframe">
-            </iframe>
-          );
-        }
-      }
-      
-
-      class MainFrame extends React.Component{
-        render(){
-          return (
-            <div className="row h-100" style={ {"height":"100%"} }>
-              <div className="h-100 col-sm-5" style={ {"height":"100%"} }>
-                <LeftPane />
-              </div>
-              <div className="h-100 col-sm-7" style={ {"height":"100%"} }>
-                <RightPane score_suffix={this.props.score_suffix} />
-              </div>
-            </div>
-          );
-        }
-      }
-
-      ReactDOM.render(
-        <Body />,
-        document.getElementById("body")
-      );
+    <script type="text/babel" src="static/components.js">
     </script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap.native/2.0.6/bootstrap-native.min.js"></script>
   </body>
