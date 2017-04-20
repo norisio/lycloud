@@ -73,7 +73,7 @@ send = (f)=>{
   xhr.open('POST', document.location.origin + '/post-score');
   xhr.setRequestHeader('Content-Type', 'application/json');
   xhr.onload = () => {
-    // alert(xhr.responseText)
+    //alert(xhr.responseText)
     if(xhr.status == 200){
       f()
     }

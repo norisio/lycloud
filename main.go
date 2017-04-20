@@ -1,4 +1,4 @@
-// vim: set ts=2 sts=2 et sw=2:
+// vim:set ts=2 sts=2 et sw=2:
 package main
 
 import (
@@ -29,6 +29,9 @@ type Session struct {
 var sessions []Session
 
 func main() {
+	if err:=os.RemoveAll("working/");err!=nil{
+		fmt.Println(err.Error())
+	}
 	http.HandleFunc("/", indexHandler)
 	http.HandleFunc("/post-score", scoreHandler)
 	http.HandleFunc("/get-score/", getScoreHandler)
@@ -178,8 +181,8 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 		output.Message = err.Error()
 		return
 	}
-	//cmd := exec.Command(lilypondBinPath, "-o", "output/"+id_str, "posted/"+id_str+".ly")
-	cmd := exec.Command("docker", "run", "--rm", "-v", wd+":/srv/ruby/lilypond:rw", "airdock/lilypond:latest", "score.ly")
+	//docker run -it --rm -v $(pwd)/working/0d329b63-4818-4f7c-9e1d-eb36d4910853/:/app -w /app iskaron/lilypond lilypond score.ly
+	cmd := exec.Command("docker", "run", "--rm", "-v", wd+":/app","-w","/app", "iskaron/lilypond","lilypond", "score.ly")
 	//stdin, err := cmd.StdinPipe()
 	//if err != nil {
 	//output.Message = err.Error()
