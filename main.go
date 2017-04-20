@@ -4,6 +4,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/satori/go.uuid"
 	"html/template"
@@ -31,6 +32,10 @@ type Session struct {
 var sessions []Session
 
 func main() {
+	localTestingFlg := flag.Bool("l", false, "local testing")
+	flag.Parse()
+	onStage = !(*localTestingFlg)
+
 	if err := os.RemoveAll("working/"); err != nil {
 		fmt.Println(err.Error())
 	}
