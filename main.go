@@ -20,6 +20,7 @@ import (
 
 const listenPort = "8080"
 const hourToExpireSession = 1
+
 var onStage = true
 
 type Session struct {
@@ -30,7 +31,7 @@ type Session struct {
 var sessions []Session
 
 func main() {
-	if err:=os.RemoveAll("working/");err!=nil{
+	if err := os.RemoveAll("working/"); err != nil {
 		fmt.Println(err.Error())
 	}
 	http.HandleFunc("/", indexHandler)
@@ -39,16 +40,16 @@ func main() {
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
-  fmt.Println("Listening port " + listenPort + "...")
-  var err error
-    if onStage {
-      //Stage
-err = http.ListenAndServeTLS(":"+listenPort, "/etc/letsencrypt/live/norisio.net/fullchain.pem", "/etc/letsencrypt/live/norisio.net/privkey.pem",nil)
-    }else{
-err = http.ListenAndServe(":"+listenPort, nil)
-    }
-  if err != nil {
-       fmt.Println(err.Error())
+	fmt.Println("Listening port " + listenPort + "...")
+	var err error
+	if onStage {
+		//Stage
+		err = http.ListenAndServeTLS(":"+listenPort, "/etc/letsencrypt/live/norisio.net/fullchain.pem", "/etc/letsencrypt/live/norisio.net/privkey.pem", nil)
+	} else {
+		err = http.ListenAndServe(":"+listenPort, nil)
+	}
+	if err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
@@ -189,7 +190,7 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	//docker run -it --rm -v $(pwd)/working/0d329b63-4818-4f7c-9e1d-eb36d4910853/:/app -w /app iskaron/lilypond lilypond score.ly
-	cmd := exec.Command("docker", "run", "--rm", "-v", wd+":/app","-w","/app", "iskaron/lilypond","lilypond", "score.ly")
+	cmd := exec.Command("docker", "run", "--rm", "-v", wd+":/app", "-w", "/app", "iskaron/lilypond", "lilypond", "score.ly")
 	//stdin, err := cmd.StdinPipe()
 	//if err != nil {
 	//output.Message = err.Error()
@@ -233,7 +234,8 @@ func getScoreHandler(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open(filename)
 	if err != nil {
 		w.WriteHeader(404)
-		fmt.Fprintf(w, err.Error())
+		//fmt.Fprintf(w, err.Error())
+		fmt.Fprintf(w, "PDF出力がありません")
 		return
 	}
 	w.Header().Set("Content-Type", "application/pdf")
