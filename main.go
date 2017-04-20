@@ -19,7 +19,8 @@ import (
 )
 
 const listenPort = "8080"
-const hourToExpireSession = 5
+const hourToExpireSession = 1
+var onStage = true
 
 type Session struct {
 	sessionID  uuid.UUID
@@ -38,10 +39,16 @@ func main() {
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
-	fmt.Println("Listening port " + listenPort + "...")
-	err := http.ListenAndServe(":"+listenPort, nil)
-	if err != nil {
-		fmt.Println(err.Error())
+  fmt.Println("Listening port " + listenPort + "...")
+  var err error
+    if onStage {
+      //Stage
+err = http.ListenAndServeTLS(":"+listenPort, "/etc/letsencrypt/live/norisio.net/fullchain.pem", "/etc/letsencrypt/live/norisio.net/privkey.pem",nil)
+    }else{
+err = http.ListenAndServe(":"+listenPort, nil)
+    }
+  if err != nil {
+       fmt.Println(err.Error())
 		return
 	}
 
