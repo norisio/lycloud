@@ -1,3 +1,4 @@
+// vim: set ts=2 sts=2 et sw=2:
 package main
 
 import (
@@ -17,7 +18,6 @@ import (
 	"time"
 )
 
-const lilypondBinPath = "/home/ubuntu/bin/lilypond"
 const listenPort = "8080"
 const hourToExpireSession = 5
 
@@ -35,13 +35,13 @@ func main() {
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, r.URL.Path[1:])
 	})
-	http.HandleFunc("/pdfjs/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, r.URL.Path[1:])
-	})
+	fmt.Println("Listening port " + listenPort + "...")
 	err := http.ListenAndServe(":"+listenPort, nil)
-     if err != nil{
-	     fmt.Println(err.Error())
-     }
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
 }
 
 type Initial struct {
@@ -60,7 +60,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 	sessions = append(sessions, thisSession)
 	initial := Initial{SessionID: newuuidstr}
 	err = tmpl.Execute(w, initial)
-	if err != nil{
+	if err != nil {
 		fmt.Println(err.Error())
 	}
 }
@@ -151,9 +151,15 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := os.OpenFile("posted/"+id_str+".ly", os.O_WRONLY|os.O_CREATE, 0644)
+	dirname := "working/" + id_str
+	err = os.MkdirAll(dirname, 0744)
 	if err != nil {
-		output.Message = "cannot write ly file"
+		output.Message = "cannot create directory"
+		return
+	}
+	file, err := os.OpenFile(dirname+"/score.ly", os.O_WRONLY|os.O_CREATE, 0644)
+	if err != nil {
+		output.Message = "cannot open ly file"
 		return
 	}
 	writer := bufio.NewWriter(file)
@@ -164,9 +170,16 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	writer.Flush()
 	file.Close()
-	defer os.Remove("posted/" + id_str + ".ly")
+	//defer os.Remove("working/" + id_str + ".ly")
 
-	cmd := exec.Command(lilypondBinPath, "-o", "output/"+id_str, "posted/"+id_str+".ly")
+	wd, err := os.Getwd()
+	wd = wd + "/" + dirname
+	if err != nil {
+		output.Message = err.Error()
+		return
+	}
+	//cmd := exec.Command(lilypondBinPath, "-o", "output/"+id_str, "posted/"+id_str+".ly")
+	cmd := exec.Command("docker", "run", "--rm", "-v", wd+":/srv/ruby/lilypond:rw", "airdock/lilypond:latest", "score.ly")
 	//stdin, err := cmd.StdinPipe()
 	//if err != nil {
 	//output.Message = err.Error()
@@ -203,8 +216,10 @@ func getScoreHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filename := "output/" + id_str + ".pdf"
-	midifilename := "output/" + id_str + ".mid"
+	//filename := "output/" + id_str + ".pdf"
+	//midifilename := "output/" + id_str + ".mid"
+	filename := "working/" + id_str + "/score.pdf"
+	midifilename := "working/" + id_str + "/score.mid"
 	file, err := os.Open(filename)
 	if err != nil {
 		w.WriteHeader(404)
