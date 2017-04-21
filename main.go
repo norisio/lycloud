@@ -211,6 +211,7 @@ func scoreHandler(w http.ResponseWriter, r *http.Request) {
 		output.Success = true
 	} else {
 		output.Success = false
+		fmt.Println(string(combinedOutput))
 	}
 	output.Message = string(combinedOutput)
 	//respond to client by deferred function call
